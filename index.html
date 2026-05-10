@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Character Percents</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #111827;
+      --muted: #64748b;
+      --line: rgba(15, 23, 42, 0.14);
+      --paper: #f6f4ee;
+      --panel: rgba(255, 255, 255, 0.78);
+      --panel-strong: rgba(255, 255, 255, 0.92);
+      --accent: #e04f2f;
+      --accent-2: #0f766e;
+      --accent-3: #3454d1;
+      --shadow: 0 24px 70px rgba(28, 25, 23, 0.18);
+      --radius: 8px;
+      font-family:
+        Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      min-width: 320px;
+      overflow: hidden;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(15, 23, 42, 0.06) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+        radial-gradient(circle at 15% 20%, rgba(224, 79, 47, 0.2), transparent 27%),
+        radial-gradient(circle at 82% 76%, rgba(15, 118, 110, 0.16), transparent 24%),
+        var(--paper);
+      background-size: 44px 44px, 44px 44px, auto, auto, auto;
+    }
+
+    .app {
+      position: relative;
+      display: grid;
+      min-height: 100%;
+      padding: clamp(14px, 3vw, 36px);
+    }
+
+    .machine {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(250px, 340px);
+      gap: clamp(12px, 2.4vw, 24px);
+      min-height: calc(100vh - clamp(28px, 6vw, 72px));
+    }
+
+    .input-shell {
+      position: relative;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.56);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(22px);
+    }
+
+    .top-strip,
+    .bottom-strip {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px;
+      border-color: var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+    }
+
+    .top-strip {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .bottom-strip {
+      border-top: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      color: #334155;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 28px;
+      height: 28px;
+      place-items: center;
+      flex: 0 0 auto;
+      border: 1px solid rgba(224, 79, 47, 0.34);
+      border-radius: 50%;
+      color: var(--accent);
+      background: #fff7ed;
+      font-weight: 900;
+    }
+
+    .stats {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 6px;
+      min-height: 32px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      color: #334155;
+      white-space: nowrap;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+    }
+
+    .pill strong {
+      color: var(--ink);
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .pill span {
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .workspace {
+      position: relative;
+      min-height: 0;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100%;
+      min-height: 58vh;
+      resize: none;
+      border: 0;
+      outline: 0;
+      padding: clamp(24px, 5vw, 72px);
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.56)),
+        transparent;
+      font-family:
+        ui-serif, Georgia, Cambria, "Times New Roman", "Songti SC", "SimSun", serif;
+      font-size: clamp(44px, 9vw, 136px);
+      font-weight: 850;
+      line-height: 0.98;
+      letter-spacing: 0;
+      caret-color: var(--accent);
+    }
+
+    textarea::placeholder {
+      color: rgba(15, 23, 42, 0.22);
+    }
+
+    .score-watermark {
+      position: absolute;
+      right: clamp(14px, 3vw, 44px);
+      bottom: clamp(18px, 4vw, 50px);
+      pointer-events: none;
+      color: rgba(15, 23, 42, 0.08);
+      font-size: clamp(80px, 18vw, 280px);
+      font-weight: 950;
+      line-height: 0.8;
+      letter-spacing: 0;
+    }
+
+    .stream {
+      display: flex;
+      gap: 6px;
+      min-width: 0;
+      overflow: hidden;
+      mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 50px), transparent);
+    }
+
+    .letter-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 34px;
+      height: 34px;
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.84);
+      color: #1f2937;
+      font-size: 12px;
+      font-weight: 900;
+      box-shadow: 0 6px 12px rgba(15, 23, 42, 0.06);
+    }
+
+    .letter-chip b {
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .side {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 12px;
+      min-height: 0;
+    }
+
+    .total-card,
+    .alphabet-card,
+    .samples-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-strong);
+      box-shadow: 0 18px 46px rgba(28, 25, 23, 0.12);
+      backdrop-filter: blur(18px);
+    }
+
+    .total-card {
+      display: grid;
+      gap: 10px;
+      padding: 18px;
+    }
+
+    .total-number {
+      display: flex;
+      align-items: end;
+      gap: 6px;
+      color: var(--accent);
+      font-size: clamp(58px, 8vw, 92px);
+      font-weight: 950;
+      line-height: 0.86;
+      letter-spacing: 0;
+    }
+
+    .total-number span {
+      color: #475569;
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    .formula {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-height: 26px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .formula i {
+      font-style: normal;
+      color: var(--accent-2);
+    }
+
+    .alphabet-card {
+      min-height: 0;
+      padding: 12px;
+      overflow: hidden;
+    }
+
+    .alphabet-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      height: 100%;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .bar {
+      display: grid;
+      grid-template-columns: 24px 1fr auto;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      padding: 6px 8px;
+      border: 1px solid rgba(15, 23, 42, 0.1);
+      border-radius: 7px;
+      background: rgba(248, 250, 252, 0.84);
+    }
+
+    .bar .key {
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 950;
+    }
+
+    .bar-track {
+      position: relative;
+      height: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.08);
+    }
+
+    .bar-fill {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: var(--w, 0%);
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    }
+
+    .bar .value {
+      color: #475569;
+      font-size: 11px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .samples-card {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+    }
+
+    .sample-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      width: 100%;
+      border: 1px solid rgba(15, 23, 42, 0.1);
+      border-radius: 7px;
+      padding: 9px 10px;
+      color: #1e293b;
+      background: rgba(248, 250, 252, 0.88);
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .sample-row:hover,
+    .sample-row:focus-visible {
+      border-color: rgba(224, 79, 47, 0.46);
+      outline: 0;
+      background: #fff7ed;
+    }
+
+    .sample-row strong {
+      overflow: hidden;
+      font-size: 13px;
+      font-weight: 900;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .sample-row span {
+      color: var(--accent);
+      font-size: 15px;
+      font-weight: 950;
+      font-variant-numeric: tabular-nums;
+    }
+
+    @media (max-width: 900px) {
+      body {
+        overflow: auto;
+      }
+
+      .app {
+        min-height: auto;
+      }
+
+      .machine {
+        grid-template-columns: minmax(0, 1fr);
+        min-height: 0;
+      }
+
+      .side {
+        grid-template-rows: auto auto auto;
+      }
+
+      .alphabet-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        max-height: 270px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .app {
+        padding: 10px;
+      }
+
+      .top-strip,
+      .bottom-strip {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .stats {
+        width: 100%;
+      }
+
+      .pill {
+        flex: 1 1 0;
+        justify-content: center;
+      }
+
+      textarea {
+        min-height: 48vh;
+        padding: 22px;
+        font-size: clamp(38px, 17vw, 78px);
+      }
+
+      .alphabet-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .stream {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="machine" aria-label="Character percent calculator">
+      <div class="input-shell">
+        <div class="top-strip">
+          <div class="brand" aria-label="A to Z equals 1 to 26">
+            <span class="brand-mark">A</span>
+            <span>A=1 · Z=26</span>
+          </div>
+          <div class="stats" aria-live="polite">
+            <div class="pill"><strong id="lettersCount">0</strong><span>LETTERS</span></div>
+            <div class="pill"><strong id="wordsCount">0</strong><span>WORDS</span></div>
+          </div>
+        </div>
+
+        <div class="workspace">
+          <textarea id="input" autocomplete="off" spellcheck="false" autofocus placeholder="iostream"></textarea>
+          <div class="score-watermark" id="watermark">0%</div>
+        </div>
+
+        <div class="bottom-strip">
+          <div class="stream" id="stream" aria-label="Letter values"></div>
+          <div class="pill"><strong id="ignoredCount">0</strong><span>IGNORED</span></div>
+        </div>
+      </div>
+
+      <aside class="side" aria-label="Live result">
+        <div class="total-card">
+          <div class="total-number"><output id="total">0</output><span>%</span></div>
+          <div class="formula" id="formula">Type letters.</div>
+        </div>
+
+        <div class="alphabet-card">
+          <div class="alphabet-grid" id="alphabet"></div>
+        </div>
+
+        <div class="samples-card" aria-label="Samples">
+          <button class="sample-row" type="button" data-value="Knowledge">
+            <strong>Knowledge</strong><span>96%</span>
+          </button>
+          <button class="sample-row" type="button" data-value="Workhard">
+            <strong>Workhard</strong><span>98%</span>
+          </button>
+          <button class="sample-row" type="button" data-value="iostream">
+            <strong>iostream</strong><span>100%</span>
+          </button>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const input = document.querySelector("#input");
+    const totalEl = document.querySelector("#total");
+    const watermark = document.querySelector("#watermark");
+    const formula = document.querySelector("#formula");
+    const stream = document.querySelector("#stream");
+    const alphabet = document.querySelector("#alphabet");
+    const lettersCount = document.querySelector("#lettersCount");
+    const wordsCount = document.querySelector("#wordsCount");
+    const ignoredCount = document.querySelector("#ignoredCount");
+    const alphabetChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+    const rows = alphabetChars.map((letter, index) => {
+      const row = document.createElement("div");
+      row.className = "bar";
+      row.innerHTML = `
+        <span class="key">${letter}</span>
+        <span class="bar-track"><span class="bar-fill"></span></span>
+        <span class="value">${index + 1}</span>
+      `;
+      alphabet.append(row);
+      return {
+        fill: row.querySelector(".bar-fill"),
+        value: row.querySelector(".value"),
+      };
+    });
+
+    function analyze(text) {
+      const letters = [];
+      const counts = Array(26).fill(0);
+      let total = 0;
+      let ignored = 0;
+
+      for (const char of text) {
+        const code = char.toUpperCase().charCodeAt(0);
+        if (code >= 65 && code <= 90) {
+          const value = code - 64;
+          letters.push({ letter: String.fromCharCode(code), value });
+          counts[value - 1] += 1;
+          total += value;
+        } else if (char.trim()) {
+          ignored += 1;
+        }
+      }
+
+      return { letters, counts, total, ignored };
+    }
+
+    function formatFormula(letters) {
+      if (!letters.length) return "Type letters.";
+      const visible = letters.slice(0, 13).map((item) => `${item.letter}<i>${item.value}</i>`);
+      const rest = letters.length - visible.length;
+      return `${visible.join(" + ")}${rest > 0 ? ` + ${rest} more` : ""}`;
+    }
+
+    function render() {
+      const result = analyze(input.value);
+      const maxCount = Math.max(1, ...result.counts);
+      const wordMatches = input.value.match(/[A-Za-z]+/g) || [];
+
+      totalEl.value = result.total;
+      watermark.textContent = `${result.total}%`;
+      lettersCount.textContent = result.letters.length;
+      wordsCount.textContent = wordMatches.length;
+      ignoredCount.textContent = result.ignored;
+      formula.innerHTML = formatFormula(result.letters);
+
+      stream.replaceChildren(
+        ...result.letters.slice(-26).map((item) => {
+          const chip = document.createElement("span");
+          chip.className = "letter-chip";
+          chip.innerHTML = `${item.letter}<b>${item.value}</b>`;
+          return chip;
+        })
+      );
+
+      result.counts.forEach((count, index) => {
+        const value = (index + 1) * count;
+        rows[index].fill.style.setProperty("--w", `${(count / maxCount) * 100}%`);
+        rows[index].value.textContent = count ? `${count}×${index + 1}=${value}` : index + 1;
+      });
+    }
+
+    document.querySelectorAll(".sample-row").forEach((button) => {
+      button.addEventListener("click", () => {
+        input.value = button.dataset.value;
+        input.focus();
+        render();
+      });
+    });
+
+    input.addEventListener("input", render);
+    input.value = "iostream";
+    render();
+  </script>
+</body>
+</html>
